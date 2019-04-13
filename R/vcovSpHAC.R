@@ -112,7 +112,7 @@ vcovSpHAC <- function(reg,
   X <- as.matrix(dt[, eval(Xvars), with = FALSE])
   invXX <- solve(t(X) %*% X) * n
 
-  if(Ntime >= 1) {
+  if(Ntime > 1) {
     #================================================================
     # Correct for serial correlation:
     panelUnique <- unique(dt[, unit])
