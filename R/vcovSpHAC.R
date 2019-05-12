@@ -1,7 +1,7 @@
 ## call the new version vcovSpHAC
 vcovSpHAC <- function(reg,
-                      unit,
-                      time,
+                      unit = NULL,
+                      time = NULL,
                       lat,
                       lon,
                       kernel = c("bartlett","uniform"),
@@ -17,6 +17,8 @@ vcovSpHAC <- function(reg,
   kernel <- match.arg(kernel)
   dist_fn <- match.arg(dist_fn)
 
+  noFEs <- length(unit) == 0
+
   ## assign the number of cores to use, default to all
   if(is.na(ncores)) ncores <- RcppParallel::defaultNumThreads()
   RcppParallel::setThreadOptions(numThreads = ncores)
@@ -26,8 +28,9 @@ vcovSpHAC <- function(reg,
   }
 
   if (class(reg) == "felm") {
-    if(length(reg$fe)==0) {
-      unit <- "fe1"
+  #  if(length(reg$fe)==0) {
+   if(noFEs == TRUE) {
+       unit <- "fe1"
       time <- "fe2"
     }
     Xvars <- rownames(reg$coefficients)
@@ -37,16 +40,16 @@ vcovSpHAC <- function(reg,
       reg$cX,
       #fe1 = Fac2Num(reg$fe[[1]]),
       #fe2 = Fac2Num(reg$fe[[2]]),
-      fe1 = ifelse( rep(length(reg$fe)>0,length(reg$cY)) , Fac2Num(reg$fe[[1]]), 1:length(reg$cY) ),
-      fe2 = ifelse( rep(length(reg$fe)>0,length(reg$cY)), Fac2Num(reg$fe[[2]]), rep(1,length(reg$cY)) ),
+      fe1 = ifelse( rep(!noFEs,length(reg$cY)) , Fac2Num(reg$fe[[1]]), 1:length(reg$cY) ),
+      fe2 = ifelse( rep(!noFEs,length(reg$cY)), Fac2Num(reg$fe[[2]]), rep(1,length(reg$cY)) ),
       expand.model.felm(model = reg, extras = c(lat,lon), na.expand=T)
     #    coord1 = Fac2Num(reg$clustervar[[1]]),
      #  coord2 = Fac2Num(reg$clustervar[[2]])
     )
     # covers xsectional case now
     data.table::setnames(dt, c("fe1", "fe2"),
-                        c( ifelse( length(reg$fe)>0, names(reg$fe)[1], unit),
-                           ifelse( length(reg$fe)>0, names(reg$fe)[2], time)
+                        c( ifelse( !noFEs, names(reg$fe)[1], unit),
+                           ifelse( !noFEs, names(reg$fe)[2], time)
                          ))
    # data.table::setnames(dt,
     #                     c("fe1", "fe2", "coord1", "coord2"),
