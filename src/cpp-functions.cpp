@@ -333,6 +333,30 @@ arma::mat DistMat(arma::mat M, double cutoff,
   return dmat;
 }
 
+arma::mat DistMatPure(arma::mat M, double cutoff,
+                  std::string dist_fn="haversine"){
+
+  long long int nrow = M.n_rows;
+  arma::mat dmat(nrow, nrow, fill::zeros);
+
+  for( long long int i = 0; i < nrow; i++ ){
+    dmat(i, i) = 1;
+
+    for( long long int j = i+1; j < nrow; j++ ){
+      double d;
+
+      // Distance functions:
+      if(dist_fn == "haversine") d = haversine_cpp(M(i,0), M(i,1), M(j,0), M(j,1));
+      else if(dist_fn == "spherical") d = spherical_cpp(M(i,0), M(i,1), M(j,0), M(j,1));
+      else if(dist_fn == "chord") d = chord_cpp(M(i,0), M(i,1), M(j,0), M(j,1));
+      else d = sh_cpp(M(i,0), M(i,1), M(j,0), M(j,1));
+
+      dmat(i,j) = dmat(j,i) =  d;
+    }
+  }
+  return dmat;
+}
+
 struct ParDistance: public Worker {
 
   // input matrix to read from
