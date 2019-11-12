@@ -99,6 +99,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// DistMatPure
+arma::mat DistMatPure(arma::mat M, double cutoff, std::string dist_fn);
+RcppExport SEXP _conley_DistMatPure(SEXP MSEXP, SEXP cutoffSEXP, SEXP dist_fnSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type M(MSEXP);
+    Rcpp::traits::input_parameter< double >::type cutoff(cutoffSEXP);
+    Rcpp::traits::input_parameter< std::string >::type dist_fn(dist_fnSEXP);
+    rcpp_result_gen = Rcpp::wrap(DistMatPure(M, cutoff, dist_fn));
+    return rcpp_result_gen;
+END_RCPP
+}
 // DistMatPar
 arma::mat DistMatPar(arma::mat& mat, double& cutoff, std::string kernel, std::string dist_fn);
 RcppExport SEXP _conley_DistMatPar(SEXP matSEXP, SEXP cutoffSEXP, SEXP kernelSEXP, SEXP dist_fnSEXP) {
@@ -166,6 +179,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_conley_XeeXhC_Lg", (DL_FUNC) &_conley_XeeXhC_Lg, 8},
     {"_conley_TimeDist", (DL_FUNC) &_conley_TimeDist, 6},
     {"_conley_DistMat", (DL_FUNC) &_conley_DistMat, 4},
+    {"_conley_DistMatPure", (DL_FUNC) &_conley_DistMatPure, 3},
     {"_conley_DistMatPar", (DL_FUNC) &_conley_DistMatPar, 4},
     {"_conley_XeeXhC_Lg_Par", (DL_FUNC) &_conley_XeeXhC_Lg_Par, 6},
     {"_conley_Bal_XeeXhC_Par", (DL_FUNC) &_conley_Bal_XeeXhC_Par, 3},

@@ -25,6 +25,10 @@ DistMat <- function(M, cutoff, kernel = "bartlett", dist_fn = "haversine") {
     .Call(`_conley_DistMat`, M, cutoff, kernel, dist_fn)
 }
 
+DistMatPure <- function(M, cutoff, dist_fn = "haversine") {
+    .Call(`_conley_DistMatPure`, M, cutoff, dist_fn)
+}
+
 DistMatPar <- function(mat, cutoff, kernel, dist_fn) {
     .Call(`_conley_DistMatPar`, mat, cutoff, kernel, dist_fn)
 }

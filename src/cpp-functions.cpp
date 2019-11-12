@@ -333,7 +333,7 @@ arma::mat DistMat(arma::mat M, double cutoff,
   return dmat;
 }
 
-
+// [[Rcpp::export]]
 arma::mat DistMatPure(arma::mat M, double cutoff,
                   std::string dist_fn="haversine"){
 
