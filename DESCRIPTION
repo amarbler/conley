@@ -15,7 +15,9 @@ Imports:
     lfe,
     Rcpp,
     RcppArmadillo,
-    RcppParallel
+    RcppParallel,
+    future,
+    future.apply
 LinkingTo: 
     Rcpp,
     RcppArmadillo,
