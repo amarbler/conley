@@ -11,7 +11,9 @@ vcovSpHAC <- function(reg,
                       verbose = FALSE,
                       balanced_pnl = FALSE,
                       ncores = NA,
-                      maxobsmem = 50000L) {
+                      maxobsmem = 50000L,
+                      depVar,
+                      data) {
 
   ## check the options on kernel and dist_fn
   kernel <- match.arg(kernel)
@@ -56,9 +58,29 @@ vcovSpHAC <- function(reg,
      #                    c(names(reg$fe)[1:2], names(reg$clustervar)))
     dt = dt[, e := as.numeric(reg$residuals)]
 
-  } else {
-    message("Model class not recognized.")
-    return(NULL)
+  }
+
+  if(class(reg) == "fixest") {
+    Xvars <- names(reg$coefficients)
+    #if(!is.null(vars)){
+    #Xvars = Xvars[Xvars == vars]
+    #}
+    dt = data.table(reg$y_demeaned,
+                    reg$X_demeaned,
+                    fe1 = Fac2Num(data[[unit]]),
+                    fe2 = Fac2Num(data[[time]]),
+                    coord1 = Fac2Num(data[[lat]]),
+                    coord2 = Fac2Num(data[[lon]]))
+    setnames(dt,
+             c("V1", "fe1", "fe2", "coord1", "coord2"),
+             c(depVar, unit, time, "lat", "lon"))
+    dt = dt[, e := as.numeric(reg$residuals)]
+
+  }
+
+  if(class(reg) != "fixest" & class(reg) != "felm"){
+  message("Model class not recognized.")
+  return(NULL)
   }
 
   n <- nrow(dt)
@@ -121,13 +143,15 @@ vcovSpHAC <- function(reg,
     panelUnique <- unique(dt[, unit])
     Npanel <- length(panelUnique)
     data.table::setkey(dt, unit)
+    future::plan(multiprocess, workers = min(ncores, future::availableCores()-1))
 
     if (verbose) {
       message("Starting to loop over units...")
     }
 
-    XeeXhs <- lapply(panelUnique, function(t) {
-      iterateObs(dt, Xvars,
+    XeeXhs <- future.apply::future_lapply(panelUnique, future.seed = TRUE, function(t) {
+      iterateObs(dt,
+                 Xvars,
                  sub_index = t,
                  type = "serial",
                  cutoff = lag_cutoff,
