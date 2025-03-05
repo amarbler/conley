@@ -143,7 +143,7 @@ vcovSpHAC <- function(reg,
     panelUnique <- unique(dt[, unit])
     Npanel <- length(panelUnique)
     data.table::setkey(dt, unit)
-    future::plan(multiprocess, workers = min(ncores, future::availableCores()-1))
+    future::plan(multicore, workers = min(ncores, future::availableCores()-1))
 
     if (verbose) {
       message("Starting to loop over units...")
